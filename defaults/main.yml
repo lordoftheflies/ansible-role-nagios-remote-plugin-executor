@@ -1,0 +1,237 @@
+---
+# roles/nagios-remote-plugin-executor/defaults/main.yml
+
+nagios-remote-plugin-executor_debug: false
+
+nagios-remote-plugin-executor_controller_user: '{{ project_controller_user }}'
+nagios-remote-plugin-executor_controller_home: '{{ project_controller_home }}'
+nagios-remote-plugin-executor_controller_resources_root: '{{ project_controller_resources_home }}'
+
+nagios-remote-plugin-executor_deployment_user: '{{ project_deployment_user }}'
+nagios-remote-plugin-executor_deployment_home: '{{ project_deployment_home }}'
+nagios-remote-plugin-executor_deployment_resources_root: '{{ project_deployment_resources_home }}'
+
+## atomic versioning example
+#
+# nagios-remote-plugin-executor_major: '0'
+# nagios-remote-plugin-executor_moderate_revision: '0'
+# nagios-remote-plugin-executor_minor_revision: '1'
+# nagios-remote-plugin-executor_build: ''
+
+## Package #
+
+nagios-remote-plugin-executor_package_state: 'present'
+nagios-remote-plugin-executor_package_version: '2.0.1'
+nagios-remote-plugin-executor_package_filename: "vagrant_{{ nagios-remote-plugin-executor_package_version }}_i686.deb"
+
+nagios-remote-plugin-executor_controller_resources_dir: '{{ nagios-remote-plugin-executor_controller_resources_root }}/sw/vagrant/debs'
+nagios-remote-plugin-executor_deployment_resources_dir: '{{ nagios-remote-plugin-executor_deployment_resources_root }}/vagrant/debs'
+
+# /tests/sw/{{ ansible_distribution| lower }}/{{ ansible_distribution_version }}/miniconda'
+
+# Help file
+
+nagios-remote-plugin-executor_acemenu_help_file_template_path: '{{ fact_role_path }}/templates/bin/acemenu/help/example_aceadmin_helpfile.md.j2'
+
+# Resources
+
+nagios-remote-plugin-executor_package_url: "https://releases.hashicorp.com/vagrant/2.0.1/vagrant_2.0.1_i686.deb"
+# nagios-remote-plugin-executor_checksum_url: "https://releases.hashicorp.com/vagrant/2.0.1/ vagrant_2.0.1_SHA256SUMS"
+# nagios-remote-plugin-executor_checksum_sig_url: "https://releases.hashicorp.com/vagrant/2.0.1/ vagrant_2.0.1_SHA256SUMS.sig"
+
+## links
+
+nagios-remote-plugin-executor_default_link_force: true
+
+########################################
+
+# Resources
+
+nagios-remote-plugin-executor_resources_on_local:
+
+  nagios-remote-plugin-executor_local_directories:
+
+    state: 'directory'
+    path: '{{ nagios-remote-plugin-executor_controller_resources_dir }}'
+    owner: '{{ nagios-remote-plugin-executor_controller_user }}'
+    group: '{{ nagios-remote-plugin-executor_controller_user }}'
+    mode: '0755'
+
+  nagios-remote-plugin-executor_local_clones:
+
+    become: ''
+    repo: 'https://github.com/cjsteel/script-bash-acemenu.git'
+    dest: '{{ nagios-remote-plugin-executor_controller_resources_dir }}/acemenu'
+    mode: '0700'
+    clone: true
+
+  nagios-remote-plugin-executor_local_downloads:
+
+    url: 'https://repo.continuum.io/miniconda/Miniconda2-4.3.30-Linux-x86_64.sh'
+    dest: '{{ nagios-remote-plugin-executor_controller_resources_dir }}/Miniconda2-latest-Linux-x86_64.sh'
+    owner: '{{ nagios-remote-plugin-executor_controller_user }}'
+    group: '{{ nagios-remote-plugin-executor_controller_user }}'
+    mode: '0700'
+    checksum: 'md5:bd1655b4b313f7b2a1f2e15b7b925d03'
+    resource_type: 'url'
+
+  nagios-remote-plugin-executor_local_file_copies:
+
+    state: "copy"
+    src: './files/example_playbook.yml'
+    dest: '{{ nagios-remote-plugin-executor_controller_resources_dir }}/copy_test.yml'
+    owner: '{{ nagios-remote-plugin-executor_controller_user }}'
+    group: '{{ nagios-remote-plugin-executor_controller_user }}'
+    mode: '0700'
+
+  nagios-remote-plugin-executor_local_file_touches:
+
+    state: 'touch'
+    path: '{{ nagios-remote-plugin-executor_controller_resources_dir }}/copy_test.yml'
+    owner: '{{ nagios-remote-plugin-executor_controller_user }}'
+    group: '{{ nagios-remote-plugin-executor_controller_user }}'
+    mode: '0770'
+
+  nagios-remote-plugin-executor_local_templated_files:
+
+
+    state: 'template'
+    src: './templates/template_test.md.j2'
+    dest: '{{ nagios-remote-plugin-executor_controller_resources_dir }}/test.md'
+    owner: '{{ nagios-remote-plugin-executor_controller_user }}'
+    group: '{{ nagios-remote-plugin-executor_controller_user }}'
+    mode: '0700'
+
+  nagios-remote-plugin-executor_local_blocksinfile:
+
+    type: 'blockinfile'
+    path: '{{ nagios-remote-plugin-executor_controller_resources_dir }}/test.md'
+    owner: '{{ nagios-remote-plugin-executor_controller_user }}'
+    group: '{{ nagios-remote-plugin-executor_controller_user }}'
+    mode: '0700'
+    insertafter: "EOF"
+    block: |
+      # if running bash
+      if [ -n "$BASH_VERSION" ]; then
+          # include /opt/display/bin/display if it exists
+          if [ -f "/opt/display/bin/display" ]; then
+              PATH="/opt/display/bin:$PATH"
+
+       	. "/opt/display/bin/"
+          fi
+      fi
+    state: "present"
+
+  nagios-remote-plugin-executor_local_standard_sym_links:
+
+    state: "link"
+    src: '{{ nagios-remote-plugin-executor_controller_resources_dir }}/test.md'
+    dest: '{{ nagios-remote-plugin-executor_controller_resources_dir }}/my_local_link'
+    owner: '{{ nagios-remote-plugin-executor_controller_user }}'
+    group: '{{ nagios-remote-plugin-executor_controller_user }}'
+    mode: '0700'
+    force: '{{ nagios-remote-plugin-executor_default_link_force }}'
+
+  nagios-remote-plugin-executor_local_relative_sym_links:
+
+    link_name: 'relative_link'
+    link_target: 'test.md'
+    link_dir: '{{ nagios-remote-plugin-executor_controller_resources_dir }}'
+    state: 'relative_link'
+#    owner: '{{ nagios-remote-plugin-executor_controller_user }}'
+#    group: '{{ nagios-remote-plugin-executor_controller_user }}'
+#    mode: '0700'
+
+nagios-remote-plugin-executor_resources_on_remote:
+
+  nagios-remote-plugin-executor_remote_directories:
+
+    state: 'directory'
+    path: '{{ nagios-remote-plugin-executor_deployment_resources_dir }}'
+    owner: '{{ nagios-remote-plugin-executor_deployment_user }}'
+    group: '{{ nagios-remote-plugin-executor_deployment_user }}'
+    mode: '0755'
+
+  nagios-remote-plugin-executor_remote_clones:
+
+    become: true
+    repo: 'https://github.com/cjsteel/script-bash-acemenu.git'
+    dest: '{{ nagios-remote-plugin-executor_deployment_resources_dir }}/acemenu'
+    mode: '0700'
+    clone: true
+
+  nagios-remote-plugin-executor_remote_downloads:
+
+    url: 'https://repo.continuum.io/miniconda/Miniconda2-4.3.30-Linux-x86_64.sh'
+    dest: '{{ nagios-remote-plugin-executor_deployment_resources_dir }}/Miniconda2-latest-Linux-x86_64.sh'
+    owner: '{{ nagios-remote-plugin-executor_deployment_user }}'
+    group: '{{ nagios-remote-plugin-executor_deployment_user }}'
+    mode: '0700'
+    checksum: 'md5:bd1655b4b313f7b2a1f2e15b7b925d03'
+    resource_type: 'url'
+
+  nagios-remote-plugin-executor_remote_file_copies:
+
+    state: "copy"
+    src: './files/example_playbook.yml'
+    dest: '{{ nagios-remote-plugin-executor_deployment_resources_dir }}/copy_test.yml'
+    owner: '{{ nagios-remote-plugin-executor_deployment_user }}'
+    group: '{{ nagios-remote-plugin-executor_deployment_user }}'
+    mode: '0700'
+
+  nagios-remote-plugin-executor_remote_file_touches:
+
+    state: 'touch'
+    path: '{{ nagios-remote-plugin-executor_deployment_resources_dir }}/copy_test.yml'
+    owner: '{{ nagios-remote-plugin-executor_deployment_user }}'
+    group: '{{ nagios-remote-plugin-executor_deployment_user }}'
+    mode: '0770'
+
+  nagios-remote-plugin-executor_remote_templates_files:
+
+    state: 'template'
+    src: './templates/template_test.md.j2'
+    dest: '{{ nagios-remote-plugin-executor_deployment_resources_dir }}/test.md'
+    owner: '{{ nagios-remote-plugin-executor_deployment_user }}'
+    group: '{{ nagios-remote-plugin-executor_deployment_user }}'
+    mode: '0700'
+
+  nagios-remote-plugin-executor_remote_blocksinfile:
+
+    type: 'blockinfile'
+    path: '{{ nagios-remote-plugin-executor_deployment_resources_dir }}/test.md'
+    owner: '{{ nagios-remote-plugin-executor_deployment_user }}'
+    group: '{{ nagios-remote-plugin-executor_deployment_user }}'
+    mode: '0700'
+    insertafter: "EOF"
+    block: |
+      # if running bash
+      if [ -n "$BASH_VERSION" ]; then
+          # include /opt/display/bin/display if it exists
+          if [ -f "/opt/display/bin/display" ]; then
+              PATH="/opt/display/bin:$PATH"
+
+       	. "/opt/display/bin/"
+          fi
+      fi
+    state: "present"
+
+  nagios-remote-plugin-executor_remote_standard_sym_links:
+
+    state: 'link'
+    src: '{{ nagios-remote-plugin-executor_deployment_resources_dir }}/test.md'
+    dest: '{{ nagios-remote-plugin-executor_deployment_resources_dir }}/my_remote_link'
+    owner: '{{ nagios-remote-plugin-executor_deployment_user }}'
+    group: '{{ nagios-remote-plugin-executor_deployment_user }}'
+    mode: '0700'
+    force: '{{ nagios-remote-plugin-executor_default_link_force }}'
+
+  nagios-remote-plugin-executor_remote_relative_sym_links:
+
+    state: 'relative_link'
+    link_dir: '{{ nagios-remote-plugin-executor_deployment_resources_dir }}'
+    link_name: 'my_relative_link'
+    link_target: 'test.md'
+    owner: '{{ nagios-remote-plugin-executor_deployment_user }}'
+    group: '{{ nagios-remote-plugin-executor_deployment_user }}'
+    mode: '0700'

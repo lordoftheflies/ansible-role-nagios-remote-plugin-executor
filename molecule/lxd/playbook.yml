@@ -1,0 +1,9 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+    - nagios-remote-plugin-executor_deployment_users_home: /root
+    - nagios-remote-plugin-executor_testing_provider: lxd
+
+  roles:
+    - nagios-remote-plugin-executor

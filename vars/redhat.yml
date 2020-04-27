@@ -1,0 +1,4 @@
+---
+# roles/nagios-remote-plugin-executor/vars/debian.yml
+
+nagios-remote-plugin-executor_package_extension: 'rpm'

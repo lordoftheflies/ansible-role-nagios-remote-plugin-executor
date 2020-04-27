@@ -1,0 +1,5 @@
+---
+# roles/nagios-remote-plugin-executor/vars/debian.yml
+
+# Debian specific vars
+nagios-remote-plugin-executor_package_extension: 'deb'
